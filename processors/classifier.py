@@ -1,27 +1,22 @@
 """
-Simplified Non-LLM Transaction Classifier.
+Simple Rule-Based Transaction Classifier (No ML/LLM dependencies).
 
-Approach:
-1. Heuristic Rule-Based Matching (Direct keyword matching with word boundaries for short terms)
-2. Traditional Machine Learning (CountVectorizer + Naive Bayes Classifier)
+Categorizes transactions using direct keyword matching with word-boundary
+protection for short terms (e.g. 'atm', 'emi', 'lic').
 """
-
 import re
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.naive_bayes import MultinomialNB
-from sklearn.pipeline import make_pipeline
 
-# ── Category Dictionary ───────────────────────────────────────────────────────
+# Category -> List of matching keywords
 CATEGORIES = {
     "UPI Transfer":               ["upi", "bhim", "gpay", "phonepe", "paytm"],
     "NEFT / RTGS Transfer":       ["neft", "rtgs", "imps", "fund transfer"],
     "ATM Withdrawal":             ["atm", "cash withdrawal", "atm wdl", "wdl"],
     "Salary / Income":            ["salary", "payroll", "wages", "stipend"],
-    "EMI / Loan Payment":         ["emi", "loan", "repayment", "nach/emi"],
+    "EMI / Loan Payment":         ["emi", "loan", "repayment", "nach"],
     "Utility Bills":              ["electricity", "bescom", "msedcl", "water bill", "gas bill", "broadband"],
     "Mobile / Recharge":          ["recharge", "airtel", "jio", "vodafone", "bsnl"],
     "Insurance":                  ["insurance", "lic", "premium", "policy"],
-    "Investments / Mutual Funds": ["mutual fund", "sip", "groww", "zerodha", "nps", "ppf", "etf"],
+    "Investments / Mutual Funds": ["mutual fund", "sip", "groww", "zerodha", "nps", "ppf"],
     "Shopping / E-commerce":      ["amazon", "flipkart", "myntra", "ajio", "nykaa"],
     "Groceries":                  ["bigbasket", "blinkit", "dmart", "zepto", "grofers"],
     "Food & Dining":              ["swiggy", "zomato", "restaurant", "dominos", "kfc", "mcdonald", "cafe"],
@@ -37,48 +32,29 @@ CATEGORIES = {
     "Rent":                       ["rent", "rental", "lease"],
 }
 
-# ── Train Traditional ML Model directly on Category Vocabulary ──────────────
-_X = [keyword for cat, kws in CATEGORIES.items() for keyword in kws]
-_y = [cat for cat, kws in CATEGORIES.items() for keyword in kws]
 
-# Simple 2-stage ML pipeline: Bag-of-Words + Multinomial Naive Bayes
-_model = make_pipeline(
-    CountVectorizer(ngram_range=(1, 2)),
-    MultinomialNB(fit_prior=False)
-)
-_model.fit(_X, _y)
-
-
-def _matches_keyword(text: str, kw: str) -> bool:
-    """Check if kw is in text, using boundary for short abbreviations."""
+def _match(text: str, kw: str) -> bool:
+    """Check if keyword matches in text (uses word boundary for short abbreviations)."""
     if len(kw) <= 3:
         return bool(re.search(r'\b' + re.escape(kw) + r'\b', text))
     return kw in text
 
 
-# ── Public Classification Interface ──────────────────────────────────────────
 def classify_transaction(description: str) -> dict:
     """
-    Classify a transaction using Rule-Based matching first, then ML model fallback.
-    Returns: { 'category': str, 'confidence': float, 'method': 'heuristic' | 'ml' }
+    Classify a single transaction by matching keywords against description.
+    Returns: { 'category': str, 'confidence': float, 'method': 'rule' }
     """
-    if not description or not str(description).strip():
-        return {"category": "Other", "confidence": 0.0, "method": "heuristic"}
+    if not description:
+        return {"category": "Other", "confidence": 0.0, "method": "rule"}
 
     text = str(description).lower().strip()
 
-    # Step 1: Heuristic rule-based check
-    for cat, keywords in CATEGORIES.items():
-        if any(_matches_keyword(text, kw) for kw in keywords):
-            return {"category": cat, "confidence": 0.95, "method": "heuristic"}
+    for category, keywords in CATEGORIES.items():
+        if any(_match(text, kw) for kw in keywords):
+            return {"category": category, "confidence": 0.95, "method": "rule"}
 
-    # Step 2: Traditional ML fallback
-    try:
-        predicted_cat = str(_model.predict([text])[0])
-        prob = max(_model.predict_proba([text])[0])
-        return {"category": predicted_cat, "confidence": round(float(prob), 2), "method": "ml"}
-    except Exception:
-        return {"category": "Other", "confidence": 0.30, "method": "heuristic"}
+    return {"category": "Other", "confidence": 0.50, "method": "rule"}
 
 
 def classify_all(transactions: list) -> list:
