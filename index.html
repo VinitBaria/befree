@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Bank Statement Processor — Befree</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset & Base ───────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
+      background: #F0F4F8;
+      color: #1A202C;
+      min-height: 100vh;
+    }
+
+    /* ── Header ─────────────────────────────────────────── */
+    header {
+      background: linear-gradient(135deg, #1A5276 0%, #2E86C1 100%);
+      color: white;
+      padding: 1.25rem 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    }
+    header .logo { font-size: 1.75rem; }
+    header h1 { font-size: 1.3rem; font-weight: 700; }
+    header p  { font-size: 0.8rem; opacity: 0.85; margin-top: 2px; }
+
+    /* ── Layout ─────────────────────────────────────────── */
+    main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    /* ── Card ───────────────────────────────────────────── */
+    .card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.75rem;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+      margin-bottom: 1.5rem;
+    }
+    .card h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: #2C3E50; display: flex; align-items: center; gap: 0.5rem; }
+
+    /* ── Upload Zone ─────────────────────────────────────── */
+    .upload-zone {
+      border: 2.5px dashed #93C6E0;
+      border-radius: 10px;
+      padding: 2.5rem 1rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #F8FBFF;
+      position: relative;
+    }
+    .upload-zone:hover, .upload-zone.drag-over {
+      border-color: #2E86C1;
+      background: #EBF5FB;
+    }
+    .upload-zone .icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
+    .upload-zone p { color: #5D6D7E; font-size: 0.9rem; }
+    .upload-zone input[type=file] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+    }
+    #selected-file { margin-top: 0.75rem; color: #2E86C1; font-size: 0.85rem; font-weight: 500; }
+
+    /* ── Buttons ─────────────────────────────────────────── */
+    .btn {
+      padding: 0.6rem 1.4rem;
+      border: none; border-radius: 8px;
+      font-size: 0.9rem; font-weight: 600;
+      cursor: pointer; transition: all 0.2s;
+      display: inline-flex; align-items: center; gap: 0.4rem;
+    }
+    .btn-primary   { background: #2E86C1; color: white; }
+    .btn-primary:hover   { background: #1A5276; }
+    .btn-success   { background: #27AE60; color: white; }
+    .btn-success:hover   { background: #1E8449; }
+    .btn-warning   { background: #E67E22; color: white; }
+    .btn-warning:hover   { background: #CA6F1E; }
+    .btn-secondary { background: #ECF0F1; color: #2C3E50; }
+    .btn-secondary:hover { background: #D5DBDB; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .action-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; }
+
+    /* ── Status / Progress ───────────────────────────────── */
+    #status-bar {
+      padding: 0.75rem 1rem;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      display: none;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    #status-bar.info    { background: #EBF5FB; color: #1A5276; display: flex; }
+    #status-bar.success { background: #EAFAF1; color: #1E8449; display: flex; }
+    #status-bar.error   { background: #FDEDEC; color: #922B21; display: flex; }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2.5px solid currentColor;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Badge ───────────────────────────────────────────── */
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.6rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .badge-blue   { background: #D6EAF8; color: #1A5276; }
+    .badge-green  { background: #D5F5E3; color: #196F3D; }
+    .badge-orange { background: #FDEBD0; color: #784212; }
+    .badge-gray   { background: #EAECEE; color: #424949; }
+    .badge-red    { background: #FADBD8; color: #922B21; }
+
+    /* ── Summary Stats ───────────────────────────────────── */
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; }
+    .stat-box {
+      background: #F8F9FA;
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+      border: 1px solid #E8EAED;
+    }
+    .stat-box .stat-val { font-size: 1.5rem; font-weight: 700; color: #2C3E50; }
+    .stat-box .stat-lbl { font-size: 0.75rem; color: #7F8C8D; margin-top: 2px; }
+    .stat-box.debit .stat-val  { color: #C0392B; }
+    .stat-box.credit .stat-val { color: #27AE60; }
+
+    /* ── Account Details Grid ────────────────────────────── */
+    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
+    .info-row { display: flex; gap: 0.5rem; padding: 0.4rem 0.6rem; border-radius: 6px; background: #F8F9FA; font-size: 0.85rem; }
+    .info-row .lbl { color: #7F8C8D; font-weight: 500; min-width: 120px; flex-shrink: 0; }
+    .info-row .val { color: #2C3E50; font-weight: 600; }
+
+    /* ── Category Bar ────────────────────────────────────── */
+    .cat-breakdown { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
+
+    /* ── Table ───────────────────────────────────────────── */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid #E8EAED;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    thead th {
+      background: #2C3E50; color: white;
+      padding: 0.6rem 0.75rem;
+      text-align: left; white-space: nowrap;
+      position: sticky; top: 0;
+    }
+    tbody tr { border-bottom: 1px solid #F0F0F0; }
+    tbody tr:hover { background: #F8F9FA; }
+    tbody td { padding: 0.5rem 0.75rem; vertical-align: top; }
+    .amount-debit  { color: #C0392B; font-weight: 600; }
+    .amount-credit { color: #27AE60; font-weight: 600; }
+    .desc-cell { max-width: 220px; word-break: break-word; }
+    .conf-bar {
+      height: 4px; border-radius: 2px; background: #E8EAED; margin-top: 3px;
+    }
+    .conf-fill { height: 100%; border-radius: 2px; background: #27AE60; }
+
+    /* ── Filter Bar ──────────────────────────────────────── */
+    .filter-bar { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
+    .filter-bar input, .filter-bar select {
+      padding: 0.45rem 0.75rem;
+      border: 1px solid #CBD5E0;
+      border-radius: 7px;
+      font-size: 0.85rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .filter-bar input:focus, .filter-bar select:focus { border-color: #2E86C1; }
+
+    /* ── Hidden ──────────────────────────────────────────── */
+    .hidden { display: none !important; }
+
+    /* ── Responsive ──────────────────────────────────────── */
+    @media (max-width: 600px) {
+      header { flex-direction: column; align-items: flex-start; }
+      .info-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Header ──────────────────────────────────────────────────── -->
+<header>
+  <div class="logo">🏦</div>
+  <div>
+    <h1>Bank Statement Processor</h1>
+    <p>Upload · Extract · Classify · Export — No LLMs, 100% Reliable</p>
+  </div>
+</header>
+
+<main>
+
+  <!-- ── Upload Card ──────────────────────────────────────────── -->
+  <div class="card">
+    <h2>📄 Upload Bank Statement</h2>
+    <div class="upload-zone" id="drop-zone">
+      <input type="file" id="file-input" accept=".pdf" />
+      <div class="icon">☁️</div>
+      <p><strong>Drop PDF here</strong> or click to browse</p>
+      <p style="font-size:0.78rem; margin-top:4px;">Supports text-based & scanned (image) PDFs</p>
+      <div id="selected-file"></div>
+    </div>
+
+    <div class="action-row">
+      <button class="btn btn-primary" id="process-btn" onclick="processFile()" disabled>
+        ⚡ Process Statement
+      </button>
+      <button class="btn btn-secondary" onclick="loadDemo()">
+        🎯 Load Demo Data
+      </button>
+    </div>
+
+    <!-- Status Bar -->
+    <div id="status-bar" style="margin-top:1rem;"></div>
+  </div>
+
+  <!-- ── Results (hidden until data loaded) ──────────────────── -->
+  <div id="results" class="hidden">
+
+    <!-- Summary Stats -->
+    <div class="card">
+      <h2>📊 Summary</h2>
+      <div class="stats-grid" id="stats-grid"></div>
+    </div>
+
+    <!-- Account Details -->
+    <div class="card">
+      <h2>🧾 Account Details</h2>
+      <div class="info-grid" id="account-info"></div>
+    </div>
+
+    <!-- Category Breakdown -->
+    <div class="card">
+      <h2>🏷️ Category Breakdown</h2>
+      <div class="cat-breakdown" id="cat-breakdown"></div>
+    </div>
+
+    <!-- Export -->
+    <div class="card">
+      <h2>📥 Export Data</h2>
+      <div class="action-row">
+        <button class="btn btn-success" id="excel-btn" onclick="exportData('excel')">
+          📊 Download Excel (.xlsx)
+        </button>
+        <button class="btn btn-warning" id="csv-btn" onclick="exportData('csv')">
+          📋 Download CSV (.csv)
+        </button>
+      </div>
+    </div>
+
+    <!-- Transactions Table -->
+    <div class="card">
+      <h2>📋 Transactions <span id="txn-count" class="badge badge-blue"></span></h2>
+      <div class="filter-bar">
+        <input type="text" id="search-input" placeholder="🔍 Search description..." oninput="filterTable()" />
+        <select id="cat-filter" onchange="filterTable()">
+          <option value="">All Categories</option>
+        </select>
+        <select id="type-filter" onchange="filterTable()">
+          <option value="">All Types</option>
+          <option value="debit">Debit Only</option>
+          <option value="credit">Credit Only</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table id="txn-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Date</th>
+              <th>Description</th>
+              <th>Debit (₹)</th>
+              <th>Credit (₹)</th>
+              <th>Balance (₹)</th>
+              <th>Category</th>
+              <th>Confidence</th>
+              <th>Method</th>
+            </tr>
+          </thead>
+          <tbody id="txn-body"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /results -->
+
+</main>
+
+<script>
+// ── State ─────────────────────────────────────────────────────────────────
+const API = 'http://localhost:5000/api';
+let currentSessionId = null;
+let allTransactions   = [];
+
+// ── File upload ───────────────────────────────────────────────────────────
+const dropZone  = document.getElementById('drop-zone');
+const fileInput = document.getElementById('file-input');
+const processBtn = document.getElementById('process-btn');
+
+fileInput.addEventListener('change', () => {
+  if (fileInput.files[0]) {
+    document.getElementById('selected-file').textContent = '✅ ' + fileInput.files[0].name;
+    processBtn.disabled = false;
+  }
+});
+
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const f = e.dataTransfer.files[0];
+  if (f && f.name.endsWith('.pdf')) {
+    fileInput.files = e.dataTransfer.files;
+    document.getElementById('selected-file').textContent = '✅ ' + f.name;
+    processBtn.disabled = false;
+  }
+});
+
+// ── Status helpers ────────────────────────────────────────────────────────
+function setStatus(msg, type = 'info', showSpinner = false) {
+  const bar = document.getElementById('status-bar');
+  bar.className = type;
+  bar.innerHTML = (showSpinner ? '<div class="spinner"></div>' : '') + `<span>${msg}</span>`;
+}
+function hideStatus() {
+  document.getElementById('status-bar').className = '';
+}
+
+// ── Process PDF ───────────────────────────────────────────────────────────
+async function processFile() {
+  const file = fileInput.files[0];
+  if (!file) return;
+
+  processBtn.disabled = true;
+  setStatus('Uploading and processing PDF…', 'info', true);
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  try {
+    const res  = await fetch(`${API}/process`, { method: 'POST', body: formData });
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      setStatus('❌ ' + (data.error || 'Processing failed'), 'error');
+      return;
+    }
+
+    setStatus(
+      `✅ Processed! Detected: <strong>${data.pdf_type === 'image' ? '🖼️ Scanned (OCR)' : '📝 Text-based'}</strong> PDF — ${data.summary.total_transactions} transactions found`,
+      'success'
+    );
+    renderResults(data);
+  } catch (err) {
+    setStatus('❌ Could not reach server. Is the backend running on port 5000?', 'error');
+  } finally {
+    processBtn.disabled = false;
+  }
+}
+
+// ── Demo Data ─────────────────────────────────────────────────────────────
+async function loadDemo() {
+  setStatus('Loading demo data…', 'info', true);
+  try {
+    const res  = await fetch(`${API}/demo`);
+    const data = await res.json();
+    setStatus('✅ Demo data loaded! Showing sample HDFC Bank statement.', 'success');
+    renderResults(data);
+  } catch (err) {
+    setStatus('❌ Could not reach server. Is the backend running on port 5000?', 'error');
+  }
+}
+
+// ── Render Results ────────────────────────────────────────────────────────
+function renderResults(data) {
+  currentSessionId = data.session_id;
+  allTransactions  = data.transactions || [];
+
+  document.getElementById('results').classList.remove('hidden');
+
+  renderStats(data.summary, data);
+  renderAccountDetails(data.account_details);
+  renderCategoryBreakdown(data.summary.category_breakdown);
+  renderTable(allTransactions);
+  populateCategoryFilter(allTransactions);
+}
+
+function fmt(n) {
+  if (n == null || n === '') return '—';
+  return Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function renderStats(summary, data) {
+  const grid = document.getElementById('stats-grid');
+  const pdfBadge = data.pdf_type === 'image' ? '🖼️ Scanned' : data.pdf_type === 'demo' ? '🎯 Demo' : '📝 Text';
+  grid.innerHTML = `
+    <div class="stat-box">
+      <div class="stat-val">${summary.total_transactions}</div>
+      <div class="stat-lbl">Total Transactions</div>
+    </div>
+    <div class="stat-box debit">
+      <div class="stat-val">₹${fmt(summary.total_debit)}</div>
+      <div class="stat-lbl">Total Debit</div>
+    </div>
+    <div class="stat-box credit">
+      <div class="stat-val">₹${fmt(summary.total_credit)}</div>
+      <div class="stat-lbl">Total Credit</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val">${Object.keys(summary.category_breakdown).length}</div>
+      <div class="stat-lbl">Categories Found</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-val">${pdfBadge}</div>
+      <div class="stat-lbl">PDF Type</div>
+    </div>
+  `;
+}
+
+function renderAccountDetails(acc) {
+  const grid = document.getElementById('account-info');
+  const rows = [
+    ['Account Holder', acc.account_holder || 'N/A'],
+    ['Account Number', acc.account_number || 'N/A'],
+    ['Bank Name',      acc.bank_name      || 'N/A'],
+    ['IFSC Code',      acc.ifsc           || 'N/A'],
+    ['Statement Period', acc.statement_period || 'N/A'],
+  ];
+  grid.innerHTML = rows.map(([l, v]) =>
+    `<div class="info-row"><span class="lbl">${l}</span><span class="val">${v}</span></div>`
+  ).join('');
+}
+
+const CAT_COLORS = {
+  'UPI Transfer': '#D6EAF8', 'NEFT / RTGS Transfer': '#D1F2EB',
+  'ATM Withdrawal': '#FADBD8', 'Salary / Income': '#D5F5E3',
+  'EMI / Loan Payment': '#FDEBD0', 'Utility Bills': '#F9E79F',
+  'Mobile / Recharge': '#D7BDE2', 'Insurance': '#AED6F1',
+  'Investments / Mutual Funds': '#A9DFBF', 'Shopping / E-commerce': '#F9E0D9',
+  'Groceries': '#F8F9FA', 'Food & Dining': '#FAD7A0',
+  'Fuel / Transport': '#ABEBC6', 'Healthcare / Medical': '#F1948A',
+  'Education': '#A9CCE3', 'Entertainment / OTT': '#C39BD3',
+  'Travel / Hospitality': '#A2D9CE', 'Bank Charges / Fees': '#F5B7B1',
+  'Cash Deposit': '#A9DFBF', 'Cheque': '#D2B4DE',
+  'Self Transfer': '#D5D8DC', 'Refund / Reversal': '#A3E4D7',
+  'Rent': '#F7DC6F', 'Other': '#EAECEE',
+};
+
+function renderCategoryBreakdown(breakdown) {
+  const wrap = document.getElementById('cat-breakdown');
+  wrap.innerHTML = Object.entries(breakdown)
+    .sort((a, b) => b[1] - a[1])
+    .map(([cat, cnt]) => {
+      const bg = CAT_COLORS[cat] || '#EAECEE';
+      return `<span class="badge" style="background:${bg};color:#2C3E50;">${cat} (${cnt})</span>`;
+    }).join('');
+}
+
+function renderTable(transactions) {
+  const tbody = document.getElementById('txn-body');
+  document.getElementById('txn-count').textContent = transactions.length + ' rows';
+
+  if (!transactions.length) {
+    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:2rem;color:#7F8C8D;">No transactions found</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = transactions.map((t, i) => {
+    const bg = CAT_COLORS[t.category] || '#EAECEE';
+    const conf = Math.round((t.confidence || 0) * 100);
+    const methodBadge = t.classification_method === 'ml'
+      ? '<span class="badge badge-orange">ML</span>'
+      : '<span class="badge badge-blue">Rule</span>';
+    return `
+      <tr>
+        <td>${i + 1}</td>
+        <td style="white-space:nowrap;">${t.date || '—'}</td>
+        <td class="desc-cell">${t.description || '—'}</td>
+        <td class="amount-debit">${t.debit != null ? '₹' + fmt(t.debit) : '—'}</td>
+        <td class="amount-credit">${t.credit != null ? '₹' + fmt(t.credit) : '—'}</td>
+        <td>${t.balance != null ? '₹' + fmt(t.balance) : '—'}</td>
+        <td><span class="badge" style="background:${bg};color:#2C3E50;">${t.category || 'Other'}</span></td>
+        <td>
+          <span style="font-size:0.75rem;font-weight:600;">${conf}%</span>
+          <div class="conf-bar"><div class="conf-fill" style="width:${conf}%;background:${conf >= 70 ? '#27AE60' : conf >= 50 ? '#F39C12' : '#E74C3C'};"></div></div>
+        </td>
+        <td>${methodBadge}</td>
+      </tr>`;
+  }).join('');
+}
+
+function populateCategoryFilter(transactions) {
+  const sel = document.getElementById('cat-filter');
+  const cats = [...new Set(transactions.map(t => t.category))].sort();
+  sel.innerHTML = '<option value="">All Categories</option>' +
+    cats.map(c => `<option value="${c}">${c}</option>`).join('');
+}
+
+function filterTable() {
+  const search   = document.getElementById('search-input').value.toLowerCase();
+  const catVal   = document.getElementById('cat-filter').value;
+  const typeVal  = document.getElementById('type-filter').value;
+
+  const filtered = allTransactions.filter(t => {
+    const desc = (t.description || '').toLowerCase();
+    if (search && !desc.includes(search)) return false;
+    if (catVal  && t.category !== catVal) return false;
+    if (typeVal === 'debit'  && !t.debit)  return false;
+    if (typeVal === 'credit' && !t.credit) return false;
+    return true;
+  });
+
+  renderTable(filtered);
+}
+
+// ── Export ────────────────────────────────────────────────────────────────
+function exportData(format) {
+  if (!currentSessionId) return alert('No data to export yet.');
+  window.open(`${API}/export/${currentSessionId}/${format}`, '_blank');
+}
+</script>
+</body>
+</html>
+
