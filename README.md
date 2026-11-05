@@ -1,6 +1,6 @@
 # 🏦 Bank Statement Processor — Befree
 
-A simple, production-ready prototype for extracting, classifying, and exporting bank statement data — **no LLMs used**.
+A clean, production-ready prototype for extracting, classifying, and exporting bank statement data — **no LLMs used**.
 
 ## Quick Start
 
@@ -9,19 +9,11 @@ A simple, production-ready prototype for extracting, classifying, and exporting 
 pip install -r requirements.txt
 ```
 
-### 2. Start the System
-**Windows:** Double-click `start.bat`
-
-Or manually:
+### 2. Run Application
 ```bash
-python app.py          # Start backend (port 5000)
-# Open index.html in browser
+python app.py
 ```
-
-### 3. Test with Sample PDF
-```bash
-python generate_sample_pdf.py    # Creates sample_bank_statement.pdf
-```
+Open **http://localhost:5000** in your browser.
 
 ---
 
@@ -29,21 +21,22 @@ python generate_sample_pdf.py    # Creates sample_bank_statement.pdf
 
 ```
 Befree/
-├── app.py                      # Flask backend API
-├── index.html                  # Frontend (single-file UI)
-├── start.bat                   # One-click launcher (Windows)
-├── requirements.txt
-├── generate_sample_pdf.py      # Sample PDF generator
-├── sample_bank_statement.pdf   # Generated sample
+├── app.py                      # Flask backend & API routes
+├── requirements.txt            # Dependencies
+├── README.md                   # Documentation
+├── .gitignore
+│
+├── templates/
+│   └── index.html              # Frontend Web UI
 │
 ├── processors/
-│   ├── pdf_detector.py         # Auto-detect text vs image PDF
-│   ├── text_extractor.py       # pdfplumber-based text extraction
-│   ├── image_extractor.py      # OCR-based extraction (pytesseract)
-│   └── classifier.py           # Simple Rule-Based classifier
+│   ├── pdf_detector.py         # Auto-detects text vs image (scanned) PDF
+│   ├── text_extractor.py       # Table & text extraction via pdfplumber
+│   ├── image_extractor.py      # OCR extraction via Tesseract
+│   └── classifier.py           # Fast rule-based transaction classifier
 │
 └── exporters/
-    └── exporter.py             # Excel (.xlsx) + CSV export
+    └── exporter.py             # Formatted Excel (.xlsx) & CSV export
 ```
 
 ---
@@ -52,32 +45,24 @@ Befree/
 
 | Feature | Details |
 |---|---|
-| **PDF Type Detection** | Auto-detects text-based vs scanned (image) PDFs |
-| **Text PDF Extraction** | pdfplumber — table parsing + regex fallback |
-| **Image PDF Extraction** | pdf2image + Tesseract OCR with preprocessing |
-| **Multi-bank Support** | Pattern-based for HDFC, SBI, ICICI, Axis, etc. |
-| **Classification** | 22 categories, fast keyword-based heuristic rules |
-| **Export** | Color-coded Excel with 3 sheets + CSV with BOM |
-| **Demo Mode** | Load sample data without uploading any PDF |
-| **Filtering** | Search, category filter, debit/credit filter |
+| **PDF Type Detection** | Automatically determines if PDF is digital text or scanned image |
+| **Data Extraction** | Extracts Account Holder, Account Number, IFSC, Period, and all transactions |
+| **Classification** | 22 categories using keyword-based heuristic rules (no LLMs / no complex ML) |
+| **Export Formats** | Color-coded Excel with 3 sheets (Account, Transactions, Summary) & CSV |
+| **Demo Mode** | Built-in sample statement to test instantly without uploading a PDF |
+| **Filtering** | Interactive search, category filter, and debit/credit filters |
 
-## Classification Categories (24)
+## Categories Covered
 
-UPI Transfer, NEFT/RTGS, ATM Withdrawal, Salary/Income, EMI/Loan, Utility Bills, Mobile/Recharge, Insurance, Investments/MF, Shopping/E-commerce, Groceries, Food & Dining, Fuel/Transport, Healthcare, Education, Entertainment/OTT, Travel, Bank Charges, Cash Deposit, Cheque, Self Transfer, Refund/Reversal, Rent, Other
+UPI Transfer, NEFT/RTGS, ATM Withdrawal, Salary/Income, EMI/Loan, Utility Bills, Mobile/Recharge, Insurance, Investments/MF, Shopping/E-commerce, Groceries, Food & Dining, Fuel/Transport, Healthcare, Education, Entertainment/OTT, Travel, Bank Charges, Cash Deposit, Cheque, Refund/Reversal, Rent, Other
 
 ## API Endpoints
 
 | Method | Endpoint | Description |
 |---|---|---|
+| GET | `/` | Web UI |
 | GET | `/api/health` | Health check |
-| POST | `/api/process` | Upload & process PDF |
-| GET | `/api/demo` | Load demo data |
-| GET | `/api/export/{id}/excel` | Download Excel |
-| GET | `/api/export/{id}/csv` | Download CSV |
-
-## OCR Requirements (for scanned PDFs)
-
-- Install [Tesseract OCR](https://github.com/UB-Mannheim/tesseract/wiki) for Windows
-- Install [Poppler for Windows](https://github.com/oschwartz10612/poppler-windows/releases)
-- Add both to system PATH
-
+| POST | `/api/process` | Upload and process bank statement PDF |
+| GET | `/api/demo` | Load sample demo data |
+| GET | `/api/export/{id}/excel` | Download Excel (.xlsx) |
+| GET | `/api/export/{id}/csv` | Download CSV (.csv) |
