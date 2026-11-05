@@ -155,7 +155,7 @@ tbody td{padding:.45rem .7rem;vertical-align:top}
             <tr>
               <th>#</th><th>Date</th><th>Description</th>
               <th>Debit ₹</th><th>Credit ₹</th><th>Balance ₹</th>
-              <th>Category</th><th>Conf.</th><th>Method</th>
+              <th>Category</th>
             </tr>
           </thead>
           <tbody id="tbody"></tbody>
@@ -299,16 +299,11 @@ function renderTable(txns) {
   document.getElementById('cnt').textContent = txns.length + ' rows';
   if (!txns.length) {
     document.getElementById('tbody').innerHTML =
-      '<tr><td colspan="9" style="text-align:center;padding:1.5rem;color:#7f8c8d">No transactions</td></tr>';
+      '<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:#7f8c8d">No transactions</td></tr>';
     return;
   }
   document.getElementById('tbody').innerHTML = txns.map((t, i) => {
-    const bg   = COLORS[t.category] || '#eaecee';
-    const conf = Math.round((t.confidence || 0) * 100);
-    const fill = conf >= 70 ? '#27ae60' : conf >= 50 ? '#f39c12' : '#e74c3c';
-    const mth  = t.classification_method === 'ml'
-      ? '<span class="badge" style="background:#fdebd0;color:#784212">ML</span>'
-      : '<span class="badge" style="background:#d6eaf8;color:#1a5276">Rule</span>';
+    const bg = COLORS[t.category] || '#eaecee';
     return `<tr>
       <td>${i + 1}</td>
       <td style="white-space:nowrap">${t.date || '—'}</td>
@@ -317,11 +312,6 @@ function renderTable(txns) {
       <td class="cr">${t.credit != null ? '₹' + fmt(t.credit) : '—'}</td>
       <td>${t.balance != null ? '₹' + fmt(t.balance) : '—'}</td>
       <td><span class="badge" style="background:${bg};color:#2c3e50">${t.category || 'Other'}</span></td>
-      <td>
-        <span style="font-size:.72rem;font-weight:600">${conf}%</span>
-        <div class="cbar"><div class="cfill" style="width:${conf}%;background:${fill}"></div></div>
-      </td>
-      <td>${mth}</td>
     </tr>`;
   }).join('');
 }

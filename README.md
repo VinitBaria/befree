@@ -40,7 +40,7 @@ Befree/
 │   ├── pdf_detector.py         # Auto-detect text vs image PDF
 │   ├── text_extractor.py       # pdfplumber-based text extraction
 │   ├── image_extractor.py      # OCR-based extraction (pytesseract)
-│   └── classifier.py           # Heuristic + ML classifier
+│   └── classifier.py           # Simple Rule-Based classifier
 │
 └── exporters/
     └── exporter.py             # Excel (.xlsx) + CSV export
@@ -56,7 +56,7 @@ Befree/
 | **Text PDF Extraction** | pdfplumber — table parsing + regex fallback |
 | **Image PDF Extraction** | pdf2image + Tesseract OCR with preprocessing |
 | **Multi-bank Support** | Pattern-based for HDFC, SBI, ICICI, Axis, etc. |
-| **Classification** | 24 categories, heuristic rules + TF-IDF/Naive Bayes ML |
+| **Classification** | 22 categories, fast keyword-based heuristic rules |
 | **Export** | Color-coded Excel with 3 sheets + CSV with BOM |
 | **Demo Mode** | Load sample data without uploading any PDF |
 | **Filtering** | Search, category filter, debit/credit filter |

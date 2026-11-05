@@ -1,298 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Bank Statement Processor — Befree</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    /* ── Reset & Base ───────────────────────────────────── */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      font-family: 'Inter', system-ui, sans-serif;
-      background: #F0F4F8;
-      color: #1A202C;
-      min-height: 100vh;
-    }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Bank Statement Processor</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:system-ui,sans-serif;background:#f0f4f8;color:#1a202c;min-height:100vh}
 
-    /* ── Header ─────────────────────────────────────────── */
-    header {
-      background: linear-gradient(135deg, #1A5276 0%, #2E86C1 100%);
-      color: white;
-      padding: 1.25rem 2rem;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-    header .logo { font-size: 1.75rem; }
-    header h1 { font-size: 1.3rem; font-weight: 700; }
-    header p  { font-size: 0.8rem; opacity: 0.85; margin-top: 2px; }
+/* header */
+header{background:linear-gradient(135deg,#1a5276,#2e86c1);color:#fff;padding:1rem 2rem;display:flex;align-items:center;gap:.75rem;box-shadow:0 2px 8px rgba(0,0,0,.2)}
+header h1{font-size:1.2rem;font-weight:700}
+header p{font-size:.75rem;opacity:.85}
 
-    /* ── Layout ─────────────────────────────────────────── */
-    main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+/* layout */
+main{max-width:1050px;margin:0 auto;padding:1.5rem}
 
-    /* ── Card ───────────────────────────────────────────── */
-    .card {
-      background: white;
-      border-radius: 12px;
-      padding: 1.75rem;
-      box-shadow: 0 1px 6px rgba(0,0,0,0.08);
-      margin-bottom: 1.5rem;
-    }
-    .card h2 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: #2C3E50; display: flex; align-items: center; gap: 0.5rem; }
+/* card */
+.card{background:#fff;border-radius:10px;padding:1.5rem;box-shadow:0 1px 5px rgba(0,0,0,.08);margin-bottom:1.25rem}
+.card h2{font-size:1rem;font-weight:600;margin-bottom:1rem;color:#2c3e50}
 
-    /* ── Upload Zone ─────────────────────────────────────── */
-    .upload-zone {
-      border: 2.5px dashed #93C6E0;
-      border-radius: 10px;
-      padding: 2.5rem 1rem;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      background: #F8FBFF;
-      position: relative;
-    }
-    .upload-zone:hover, .upload-zone.drag-over {
-      border-color: #2E86C1;
-      background: #EBF5FB;
-    }
-    .upload-zone .icon { font-size: 2.5rem; margin-bottom: 0.5rem; }
-    .upload-zone p { color: #5D6D7E; font-size: 0.9rem; }
-    .upload-zone input[type=file] {
-      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
-    }
-    #selected-file { margin-top: 0.75rem; color: #2E86C1; font-size: 0.85rem; font-weight: 500; }
+/* upload */
+.drop{border:2px dashed #93c6e0;border-radius:8px;padding:2rem 1rem;text-align:center;cursor:pointer;background:#f8fbff;position:relative;transition:.2s}
+.drop:hover,.drop.over{border-color:#2e86c1;background:#ebf5fb}
+.drop input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.drop .ico{font-size:2rem;margin-bottom:.4rem}
+.drop p{font-size:.85rem;color:#5d6d7e}
+#fname{margin-top:.5rem;font-size:.8rem;color:#2e86c1;font-weight:600}
 
-    /* ── Buttons ─────────────────────────────────────────── */
-    .btn {
-      padding: 0.6rem 1.4rem;
-      border: none; border-radius: 8px;
-      font-size: 0.9rem; font-weight: 600;
-      cursor: pointer; transition: all 0.2s;
-      display: inline-flex; align-items: center; gap: 0.4rem;
-    }
-    .btn-primary   { background: #2E86C1; color: white; }
-    .btn-primary:hover   { background: #1A5276; }
-    .btn-success   { background: #27AE60; color: white; }
-    .btn-success:hover   { background: #1E8449; }
-    .btn-warning   { background: #E67E22; color: white; }
-    .btn-warning:hover   { background: #CA6F1E; }
-    .btn-secondary { background: #ECF0F1; color: #2C3E50; }
-    .btn-secondary:hover { background: #D5DBDB; }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+/* buttons */
+.row{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:.9rem}
+.btn{padding:.5rem 1.2rem;border:none;border-radius:7px;font-size:.85rem;font-weight:600;cursor:pointer;transition:.15s;display:inline-flex;align-items:center;gap:.35rem}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.primary{background:#2e86c1;color:#fff}.primary:hover{background:#1a5276}
+.success{background:#27ae60;color:#fff}.success:hover{background:#1e8449}
+.warning{background:#e67e22;color:#fff}.warning:hover{background:#ca6f1e}
+.gray{background:#ecf0f1;color:#2c3e50}.gray:hover{background:#d5dbdb}
 
-    .action-row { display: flex; gap: 0.75rem; flex-wrap: wrap; margin-top: 1rem; }
+/* status */
+#status{padding:.6rem 1rem;border-radius:7px;font-size:.85rem;display:none;align-items:center;gap:.5rem;margin-top:.8rem}
+#status.info{background:#ebf5fb;color:#1a5276;display:flex}
+#status.ok{background:#eafaf1;color:#1e8449;display:flex}
+#status.err{background:#fdedec;color:#922b21;display:flex}
+.spin{width:16px;height:16px;border:2px solid currentColor;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-    /* ── Status / Progress ───────────────────────────────── */
-    #status-bar {
-      padding: 0.75rem 1rem;
-      border-radius: 8px;
-      font-size: 0.9rem;
-      display: none;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    #status-bar.info    { background: #EBF5FB; color: #1A5276; display: flex; }
-    #status-bar.success { background: #EAFAF1; color: #1E8449; display: flex; }
-    #status-bar.error   { background: #FDEDEC; color: #922B21; display: flex; }
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.85rem}
+.stat{background:#f8f9fa;border-radius:8px;padding:.85rem;text-align:center;border:1px solid #e8eaed}
+.stat .v{font-size:1.4rem;font-weight:700;color:#2c3e50}
+.stat .l{font-size:.7rem;color:#7f8c8d;margin-top:2px}
+.stat.dr .v{color:#c0392b}.stat.cr .v{color:#27ae60}
 
-    .spinner {
-      width: 18px; height: 18px;
-      border: 2.5px solid currentColor;
-      border-top-color: transparent;
-      border-radius: 50%;
-      animation: spin 0.7s linear infinite;
-      flex-shrink: 0;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
+/* account grid */
+.agrid{display:grid;grid-template-columns:1fr 1fr;gap:.4rem}
+.arow{display:flex;gap:.5rem;padding:.35rem .6rem;border-radius:5px;background:#f8f9fa;font-size:.82rem}
+.arow .l{color:#7f8c8d;font-weight:500;min-width:120px}
+.arow .v{color:#2c3e50;font-weight:600}
 
-    /* ── Badge ───────────────────────────────────────────── */
-    .badge {
-      display: inline-block;
-      padding: 0.2rem 0.6rem;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 600;
-    }
-    .badge-blue   { background: #D6EAF8; color: #1A5276; }
-    .badge-green  { background: #D5F5E3; color: #196F3D; }
-    .badge-orange { background: #FDEBD0; color: #784212; }
-    .badge-gray   { background: #EAECEE; color: #424949; }
-    .badge-red    { background: #FADBD8; color: #922B21; }
+/* cats */
+.cats{display:flex;flex-wrap:wrap;gap:.35rem;margin-top:.4rem}
+.badge{display:inline-block;padding:.18rem .55rem;border-radius:20px;font-size:.72rem;font-weight:600}
 
-    /* ── Summary Stats ───────────────────────────────────── */
-    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1rem; }
-    .stat-box {
-      background: #F8F9FA;
-      border-radius: 10px;
-      padding: 1rem;
-      text-align: center;
-      border: 1px solid #E8EAED;
-    }
-    .stat-box .stat-val { font-size: 1.5rem; font-weight: 700; color: #2C3E50; }
-    .stat-box .stat-lbl { font-size: 0.75rem; color: #7F8C8D; margin-top: 2px; }
-    .stat-box.debit .stat-val  { color: #C0392B; }
-    .stat-box.credit .stat-val { color: #27AE60; }
+/* filter */
+.fbar{display:flex;gap:.6rem;flex-wrap:wrap;align-items:center;margin-bottom:.85rem}
+.fbar input,.fbar select{padding:.4rem .7rem;border:1px solid #cbd5e0;border-radius:6px;font-size:.82rem;outline:none}
+.fbar input:focus,.fbar select:focus{border-color:#2e86c1}
 
-    /* ── Account Details Grid ────────────────────────────── */
-    .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; }
-    .info-row { display: flex; gap: 0.5rem; padding: 0.4rem 0.6rem; border-radius: 6px; background: #F8F9FA; font-size: 0.85rem; }
-    .info-row .lbl { color: #7F8C8D; font-weight: 500; min-width: 120px; flex-shrink: 0; }
-    .info-row .val { color: #2C3E50; font-weight: 600; }
+/* table */
+.wrap{overflow-x:auto;border-radius:7px;border:1px solid #e8eaed}
+table{width:100%;border-collapse:collapse;font-size:.8rem}
+thead th{background:#2c3e50;color:#fff;padding:.55rem .7rem;text-align:left;white-space:nowrap;position:sticky;top:0}
+tbody tr{border-bottom:1px solid #f0f0f0}
+tbody tr:hover{background:#f8f9fa}
+tbody td{padding:.45rem .7rem;vertical-align:top}
+.dr{color:#c0392b;font-weight:600}.cr{color:#27ae60;font-weight:600}
+.desc{max-width:200px;word-break:break-word}
+.cbar{height:4px;border-radius:2px;background:#e8eaed;margin-top:3px}
+.cfill{height:100%;border-radius:2px}
 
-    /* ── Category Bar ────────────────────────────────────── */
-    .cat-breakdown { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.5rem; }
-
-    /* ── Table ───────────────────────────────────────────── */
-    .table-wrap {
-      overflow-x: auto;
-      border-radius: 8px;
-      border: 1px solid #E8EAED;
-    }
-    table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
-    thead th {
-      background: #2C3E50; color: white;
-      padding: 0.6rem 0.75rem;
-      text-align: left; white-space: nowrap;
-      position: sticky; top: 0;
-    }
-    tbody tr { border-bottom: 1px solid #F0F0F0; }
-    tbody tr:hover { background: #F8F9FA; }
-    tbody td { padding: 0.5rem 0.75rem; vertical-align: top; }
-    .amount-debit  { color: #C0392B; font-weight: 600; }
-    .amount-credit { color: #27AE60; font-weight: 600; }
-    .desc-cell { max-width: 220px; word-break: break-word; }
-    .conf-bar {
-      height: 4px; border-radius: 2px; background: #E8EAED; margin-top: 3px;
-    }
-    .conf-fill { height: 100%; border-radius: 2px; background: #27AE60; }
-
-    /* ── Filter Bar ──────────────────────────────────────── */
-    .filter-bar { display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center; margin-bottom: 1rem; }
-    .filter-bar input, .filter-bar select {
-      padding: 0.45rem 0.75rem;
-      border: 1px solid #CBD5E0;
-      border-radius: 7px;
-      font-size: 0.85rem;
-      outline: none;
-      transition: border-color 0.2s;
-    }
-    .filter-bar input:focus, .filter-bar select:focus { border-color: #2E86C1; }
-
-    /* ── Hidden ──────────────────────────────────────────── */
-    .hidden { display: none !important; }
-
-    /* ── Responsive ──────────────────────────────────────── */
-    @media (max-width: 600px) {
-      header { flex-direction: column; align-items: flex-start; }
-      .info-grid { grid-template-columns: 1fr; }
-      .stats-grid { grid-template-columns: 1fr 1fr; }
-    }
-  </style>
+.hidden{display:none!important}
+@media(max-width:600px){.agrid{grid-template-columns:1fr}.stats{grid-template-columns:1fr 1fr}}
+</style>
 </head>
 <body>
 
-<!-- ── Header ──────────────────────────────────────────────────── -->
 <header>
-  <div class="logo">🏦</div>
+  <span style="font-size:1.6rem">🏦</span>
   <div>
     <h1>Bank Statement Processor</h1>
-    <p>Upload · Extract · Classify · Export — No LLMs, 100% Reliable</p>
+    <p>Upload · Extract · Classify · Export — No LLMs</p>
   </div>
 </header>
 
 <main>
 
-  <!-- ── Upload Card ──────────────────────────────────────────── -->
+  <!-- Upload -->
   <div class="card">
-    <h2>📄 Upload Bank Statement</h2>
-    <div class="upload-zone" id="drop-zone">
-      <input type="file" id="file-input" accept=".pdf" />
-      <div class="icon">☁️</div>
+    <h2>📄 Upload Bank Statement (PDF)</h2>
+    <div class="drop" id="drop">
+      <input type="file" id="file" accept=".pdf"/>
+      <div class="ico">☁️</div>
       <p><strong>Drop PDF here</strong> or click to browse</p>
-      <p style="font-size:0.78rem; margin-top:4px;">Supports text-based & scanned (image) PDFs</p>
-      <div id="selected-file"></div>
+      <p style="font-size:.72rem;margin-top:3px">Supports text-based &amp; scanned PDFs</p>
+      <div id="fname"></div>
     </div>
-
-    <div class="action-row">
-      <button class="btn btn-primary" id="process-btn" onclick="processFile()" disabled>
-        ⚡ Process Statement
-      </button>
-      <button class="btn btn-secondary" onclick="loadDemo()">
-        🎯 Load Demo Data
-      </button>
+    <div class="row">
+      <button class="btn primary" id="pbtn" onclick="processFile()" disabled>⚡ Process</button>
+      <button class="btn gray"    onclick="loadDemo()">🎯 Load Demo</button>
     </div>
-
-    <!-- Status Bar -->
-    <div id="status-bar" style="margin-top:1rem;"></div>
+    <div id="status"></div>
   </div>
 
-  <!-- ── Results (hidden until data loaded) ──────────────────── -->
+  <!-- Results -->
   <div id="results" class="hidden">
 
-    <!-- Summary Stats -->
     <div class="card">
       <h2>📊 Summary</h2>
-      <div class="stats-grid" id="stats-grid"></div>
+      <div class="stats" id="stats"></div>
     </div>
 
-    <!-- Account Details -->
     <div class="card">
       <h2>🧾 Account Details</h2>
-      <div class="info-grid" id="account-info"></div>
+      <div class="agrid" id="accinfo"></div>
     </div>
 
-    <!-- Category Breakdown -->
     <div class="card">
-      <h2>🏷️ Category Breakdown</h2>
-      <div class="cat-breakdown" id="cat-breakdown"></div>
+      <h2>🏷️ Categories</h2>
+      <div class="cats" id="cats"></div>
     </div>
 
-    <!-- Export -->
     <div class="card">
-      <h2>📥 Export Data</h2>
-      <div class="action-row">
-        <button class="btn btn-success" id="excel-btn" onclick="exportData('excel')">
-          📊 Download Excel (.xlsx)
-        </button>
-        <button class="btn btn-warning" id="csv-btn" onclick="exportData('csv')">
-          📋 Download CSV (.csv)
-        </button>
+      <h2>📥 Export</h2>
+      <div class="row">
+        <button class="btn success" onclick="exp('excel')">📊 Excel (.xlsx)</button>
+        <button class="btn warning" onclick="exp('csv')">📋 CSV (.csv)</button>
       </div>
     </div>
 
-    <!-- Transactions Table -->
     <div class="card">
-      <h2>📋 Transactions <span id="txn-count" class="badge badge-blue"></span></h2>
-      <div class="filter-bar">
-        <input type="text" id="search-input" placeholder="🔍 Search description..." oninput="filterTable()" />
-        <select id="cat-filter" onchange="filterTable()">
-          <option value="">All Categories</option>
-        </select>
-        <select id="type-filter" onchange="filterTable()">
-          <option value="">All Types</option>
+      <h2>📋 Transactions <span id="cnt" class="badge" style="background:#d6eaf8;color:#1a5276"></span></h2>
+      <div class="fbar">
+        <input id="search" placeholder="🔍 Search..." oninput="filter()"/>
+        <select id="cfilter" onchange="filter()"><option value="">All Categories</option></select>
+        <select id="tfilter" onchange="filter()">
+          <option value="">All</option>
           <option value="debit">Debit Only</option>
           <option value="credit">Credit Only</option>
         </select>
       </div>
-      <div class="table-wrap">
-        <table id="txn-table">
+      <div class="wrap">
+        <table>
           <thead>
             <tr>
-              <th>#</th>
-              <th>Date</th>
-              <th>Description</th>
-              <th>Debit (₹)</th>
-              <th>Credit (₹)</th>
-              <th>Balance (₹)</th>
+              <th>#</th><th>Date</th><th>Description</th>
+              <th>Debit ₹</th><th>Credit ₹</th><th>Balance ₹</th>
               <th>Category</th>
-              <th>Confidence</th>
-              <th>Method</th>
             </tr>
           </thead>
-          <tbody id="txn-body"></tbody>
+          <tbody id="tbody"></tbody>
         </table>
       </div>
     </div>
@@ -302,237 +168,172 @@
 </main>
 
 <script>
-// ── State ─────────────────────────────────────────────────────────────────
-const API = 'http://localhost:5000/api';
-let currentSessionId = null;
-let allTransactions   = [];
+let sid = null, all = [];
 
-// ── File upload ───────────────────────────────────────────────────────────
-const dropZone  = document.getElementById('drop-zone');
-const fileInput = document.getElementById('file-input');
-const processBtn = document.getElementById('process-btn');
+// ── Drag & drop ───────────────────────────────────────────────────────────
+const drop = document.getElementById('drop');
+const finp = document.getElementById('file');
+const pbtn = document.getElementById('pbtn');
 
-fileInput.addEventListener('change', () => {
-  if (fileInput.files[0]) {
-    document.getElementById('selected-file').textContent = '✅ ' + fileInput.files[0].name;
-    processBtn.disabled = false;
+finp.onchange = () => {
+  if (finp.files[0]) {
+    document.getElementById('fname').textContent = '✅ ' + finp.files[0].name;
+    pbtn.disabled = false;
   }
-});
-
-dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
-dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
-dropZone.addEventListener('drop', e => {
-  e.preventDefault();
-  dropZone.classList.remove('drag-over');
+};
+drop.addEventListener('dragover',  e => { e.preventDefault(); drop.classList.add('over'); });
+drop.addEventListener('dragleave', ()  => drop.classList.remove('over'));
+drop.addEventListener('drop', e => {
+  e.preventDefault(); drop.classList.remove('over');
   const f = e.dataTransfer.files[0];
   if (f && f.name.endsWith('.pdf')) {
-    fileInput.files = e.dataTransfer.files;
-    document.getElementById('selected-file').textContent = '✅ ' + f.name;
-    processBtn.disabled = false;
+    finp.files = e.dataTransfer.files;
+    document.getElementById('fname').textContent = '✅ ' + f.name;
+    pbtn.disabled = false;
   }
 });
 
-// ── Status helpers ────────────────────────────────────────────────────────
-function setStatus(msg, type = 'info', showSpinner = false) {
-  const bar = document.getElementById('status-bar');
-  bar.className = type;
-  bar.innerHTML = (showSpinner ? '<div class="spinner"></div>' : '') + `<span>${msg}</span>`;
-}
-function hideStatus() {
-  document.getElementById('status-bar').className = '';
+// ── Status bar ────────────────────────────────────────────────────────────
+function setStatus(msg, type, spin = false) {
+  const s = document.getElementById('status');
+  s.className = type;
+  s.innerHTML = (spin ? '<div class="spin"></div>' : '') + `<span>${msg}</span>`;
 }
 
 // ── Process PDF ───────────────────────────────────────────────────────────
 async function processFile() {
-  const file = fileInput.files[0];
-  if (!file) return;
-
-  processBtn.disabled = true;
+  const f = finp.files[0];
+  if (!f) return;
+  pbtn.disabled = true;
   setStatus('Uploading and processing PDF…', 'info', true);
-
-  const formData = new FormData();
-  formData.append('file', file);
-
+  const fd = new FormData();
+  fd.append('file', f);
   try {
-    const res  = await fetch(`${API}/process`, { method: 'POST', body: formData });
+    const res  = await fetch('/api/process', { method: 'POST', body: fd });
     const data = await res.json();
-
-    if (!res.ok || data.error) {
-      setStatus('❌ ' + (data.error || 'Processing failed'), 'error');
-      return;
-    }
-
-    setStatus(
-      `✅ Processed! Detected: <strong>${data.pdf_type === 'image' ? '🖼️ Scanned (OCR)' : '📝 Text-based'}</strong> PDF — ${data.summary.total_transactions} transactions found`,
-      'success'
-    );
-    renderResults(data);
-  } catch (err) {
-    setStatus('❌ Could not reach server. Is the backend running on port 5000?', 'error');
+    if (data.error) { setStatus('❌ ' + data.error, 'err'); return; }
+    const ptype = data.pdf_type === 'image' ? '🖼️ Scanned (OCR)' : '📝 Text';
+    setStatus(`✅ Done! <b>${ptype}</b> PDF — ${data.summary.total_transactions} transactions found`, 'ok');
+    render(data);
+  } catch (e) {
+    setStatus('❌ ' + e.message, 'err');
   } finally {
-    processBtn.disabled = false;
+    pbtn.disabled = false;
   }
 }
 
-// ── Demo Data ─────────────────────────────────────────────────────────────
+// ── Demo data ─────────────────────────────────────────────────────────────
 async function loadDemo() {
   setStatus('Loading demo data…', 'info', true);
   try {
-    const res  = await fetch(`${API}/demo`);
+    const res  = await fetch('/api/demo');
     const data = await res.json();
-    setStatus('✅ Demo data loaded! Showing sample HDFC Bank statement.', 'success');
-    renderResults(data);
-  } catch (err) {
-    setStatus('❌ Could not reach server. Is the backend running on port 5000?', 'error');
+    setStatus('✅ Demo loaded — sample HDFC Bank statement', 'ok');
+    render(data);
+  } catch (e) {
+    setStatus('❌ ' + e.message, 'err');
   }
 }
 
-// ── Render Results ────────────────────────────────────────────────────────
-function renderResults(data) {
-  currentSessionId = data.session_id;
-  allTransactions  = data.transactions || [];
-
-  document.getElementById('results').classList.remove('hidden');
-
-  renderStats(data.summary, data);
-  renderAccountDetails(data.account_details);
-  renderCategoryBreakdown(data.summary.category_breakdown);
-  renderTable(allTransactions);
-  populateCategoryFilter(allTransactions);
-}
-
-function fmt(n) {
-  if (n == null || n === '') return '—';
-  return Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
-
-function renderStats(summary, data) {
-  const grid = document.getElementById('stats-grid');
-  const pdfBadge = data.pdf_type === 'image' ? '🖼️ Scanned' : data.pdf_type === 'demo' ? '🎯 Demo' : '📝 Text';
-  grid.innerHTML = `
-    <div class="stat-box">
-      <div class="stat-val">${summary.total_transactions}</div>
-      <div class="stat-lbl">Total Transactions</div>
-    </div>
-    <div class="stat-box debit">
-      <div class="stat-val">₹${fmt(summary.total_debit)}</div>
-      <div class="stat-lbl">Total Debit</div>
-    </div>
-    <div class="stat-box credit">
-      <div class="stat-val">₹${fmt(summary.total_credit)}</div>
-      <div class="stat-lbl">Total Credit</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-val">${Object.keys(summary.category_breakdown).length}</div>
-      <div class="stat-lbl">Categories Found</div>
-    </div>
-    <div class="stat-box">
-      <div class="stat-val">${pdfBadge}</div>
-      <div class="stat-lbl">PDF Type</div>
-    </div>
-  `;
-}
-
-function renderAccountDetails(acc) {
-  const grid = document.getElementById('account-info');
-  const rows = [
-    ['Account Holder', acc.account_holder || 'N/A'],
-    ['Account Number', acc.account_number || 'N/A'],
-    ['Bank Name',      acc.bank_name      || 'N/A'],
-    ['IFSC Code',      acc.ifsc           || 'N/A'],
-    ['Statement Period', acc.statement_period || 'N/A'],
-  ];
-  grid.innerHTML = rows.map(([l, v]) =>
-    `<div class="info-row"><span class="lbl">${l}</span><span class="val">${v}</span></div>`
-  ).join('');
-}
-
-const CAT_COLORS = {
-  'UPI Transfer': '#D6EAF8', 'NEFT / RTGS Transfer': '#D1F2EB',
-  'ATM Withdrawal': '#FADBD8', 'Salary / Income': '#D5F5E3',
-  'EMI / Loan Payment': '#FDEBD0', 'Utility Bills': '#F9E79F',
-  'Mobile / Recharge': '#D7BDE2', 'Insurance': '#AED6F1',
-  'Investments / Mutual Funds': '#A9DFBF', 'Shopping / E-commerce': '#F9E0D9',
-  'Groceries': '#F8F9FA', 'Food & Dining': '#FAD7A0',
-  'Fuel / Transport': '#ABEBC6', 'Healthcare / Medical': '#F1948A',
-  'Education': '#A9CCE3', 'Entertainment / OTT': '#C39BD3',
-  'Travel / Hospitality': '#A2D9CE', 'Bank Charges / Fees': '#F5B7B1',
-  'Cash Deposit': '#A9DFBF', 'Cheque': '#D2B4DE',
-  'Self Transfer': '#D5D8DC', 'Refund / Reversal': '#A3E4D7',
-  'Rent': '#F7DC6F', 'Other': '#EAECEE',
+// ── Category colors ───────────────────────────────────────────────────────
+const COLORS = {
+  'UPI Transfer':'#d6eaf8','NEFT / RTGS Transfer':'#d1f2eb',
+  'ATM Withdrawal':'#fadbd8','Salary / Income':'#d5f5e3',
+  'EMI / Loan Payment':'#fdebd0','Utility Bills':'#f9e79f',
+  'Mobile / Recharge':'#d7bde2','Insurance':'#aed6f1',
+  'Investments / Mutual Funds':'#a9dfbf','Shopping / E-commerce':'#f9e0d9',
+  'Groceries':'#f8f9fa','Food & Dining':'#fad7a0',
+  'Fuel / Transport':'#abebc6','Healthcare / Medical':'#f1948a',
+  'Education':'#a9cce3','Entertainment / OTT':'#c39bd3',
+  'Travel / Hospitality':'#a2d9ce','Bank Charges / Fees':'#f5b7b1',
+  'Cash Deposit':'#a9dfbf','Cheque':'#d2b4de',
+  'Self Transfer':'#d5d8dc','Refund / Reversal':'#a3e4d7',
+  'Rent':'#f7dc6f','Other':'#eaecee'
 };
 
-function renderCategoryBreakdown(breakdown) {
-  const wrap = document.getElementById('cat-breakdown');
-  wrap.innerHTML = Object.entries(breakdown)
-    .sort((a, b) => b[1] - a[1])
-    .map(([cat, cnt]) => {
-      const bg = CAT_COLORS[cat] || '#EAECEE';
-      return `<span class="badge" style="background:${bg};color:#2C3E50;">${cat} (${cnt})</span>`;
-    }).join('');
+function fmt(n) {
+  return n == null ? '—' : Number(n).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
-function renderTable(transactions) {
-  const tbody = document.getElementById('txn-body');
-  document.getElementById('txn-count').textContent = transactions.length + ' rows';
+// ── Render results ────────────────────────────────────────────────────────
+function render(data) {
+  sid = data.session_id;
+  all = data.transactions || [];
+  document.getElementById('results').classList.remove('hidden');
 
-  if (!transactions.length) {
-    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;padding:2rem;color:#7F8C8D;">No transactions found</td></tr>';
+  // Stats
+  const pt = data.pdf_type === 'image' ? '🖼️ Scanned' : data.pdf_type === 'demo' ? '🎯 Demo' : '📝 Text';
+  document.getElementById('stats').innerHTML = `
+    <div class="stat"><div class="v">${data.summary.total_transactions}</div><div class="l">Transactions</div></div>
+    <div class="stat dr"><div class="v">₹${fmt(data.summary.total_debit)}</div><div class="l">Total Debit</div></div>
+    <div class="stat cr"><div class="v">₹${fmt(data.summary.total_credit)}</div><div class="l">Total Credit</div></div>
+    <div class="stat"><div class="v">${Object.keys(data.summary.category_breakdown).length}</div><div class="l">Categories</div></div>
+    <div class="stat"><div class="v">${pt}</div><div class="l">PDF Type</div></div>`;
+
+  // Account details
+  const acc = data.account_details;
+  document.getElementById('accinfo').innerHTML = [
+    ['Account Holder',   acc.account_holder   || 'N/A'],
+    ['Account Number',   acc.account_number   || 'N/A'],
+    ['Bank Name',        acc.bank_name        || 'N/A'],
+    ['IFSC Code',        acc.ifsc             || 'N/A'],
+    ['Statement Period', acc.statement_period || 'N/A'],
+  ].map(([l, v]) => `<div class="arow"><span class="l">${l}</span><span class="v">${v}</span></div>`).join('');
+
+  // Category badges
+  document.getElementById('cats').innerHTML = Object.entries(data.summary.category_breakdown)
+    .sort((a, b) => b[1] - a[1])
+    .map(([c, n]) => `<span class="badge" style="background:${COLORS[c] || '#eaecee'};color:#2c3e50">${c} (${n})</span>`)
+    .join('');
+
+  // Category filter dropdown
+  const sel = document.getElementById('cfilter');
+  sel.innerHTML = '<option value="">All Categories</option>' +
+    [...new Set(all.map(t => t.category))].sort()
+      .map(c => `<option value="${c}">${c}</option>`).join('');
+
+  renderTable(all);
+}
+
+function renderTable(txns) {
+  document.getElementById('cnt').textContent = txns.length + ' rows';
+  if (!txns.length) {
+    document.getElementById('tbody').innerHTML =
+      '<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:#7f8c8d">No transactions</td></tr>';
     return;
   }
-
-  tbody.innerHTML = transactions.map((t, i) => {
-    const bg = CAT_COLORS[t.category] || '#EAECEE';
-    const conf = Math.round((t.confidence || 0) * 100);
-    const methodBadge = t.classification_method === 'ml'
-      ? '<span class="badge badge-orange">ML</span>'
-      : '<span class="badge badge-blue">Rule</span>';
-    return `
-      <tr>
-        <td>${i + 1}</td>
-        <td style="white-space:nowrap;">${t.date || '—'}</td>
-        <td class="desc-cell">${t.description || '—'}</td>
-        <td class="amount-debit">${t.debit != null ? '₹' + fmt(t.debit) : '—'}</td>
-        <td class="amount-credit">${t.credit != null ? '₹' + fmt(t.credit) : '—'}</td>
-        <td>${t.balance != null ? '₹' + fmt(t.balance) : '—'}</td>
-        <td><span class="badge" style="background:${bg};color:#2C3E50;">${t.category || 'Other'}</span></td>
-        <td>
-          <span style="font-size:0.75rem;font-weight:600;">${conf}%</span>
-          <div class="conf-bar"><div class="conf-fill" style="width:${conf}%;background:${conf >= 70 ? '#27AE60' : conf >= 50 ? '#F39C12' : '#E74C3C'};"></div></div>
-        </td>
-        <td>${methodBadge}</td>
-      </tr>`;
+  document.getElementById('tbody').innerHTML = txns.map((t, i) => {
+    const bg = COLORS[t.category] || '#eaecee';
+    return `<tr>
+      <td>${i + 1}</td>
+      <td style="white-space:nowrap">${t.date || '—'}</td>
+      <td class="desc">${t.description || '—'}</td>
+      <td class="dr">${t.debit  != null ? '₹' + fmt(t.debit)  : '—'}</td>
+      <td class="cr">${t.credit != null ? '₹' + fmt(t.credit) : '—'}</td>
+      <td>${t.balance != null ? '₹' + fmt(t.balance) : '—'}</td>
+      <td><span class="badge" style="background:${bg};color:#2c3e50">${t.category || 'Other'}</span></td>
+    </tr>`;
   }).join('');
 }
 
-function populateCategoryFilter(transactions) {
-  const sel = document.getElementById('cat-filter');
-  const cats = [...new Set(transactions.map(t => t.category))].sort();
-  sel.innerHTML = '<option value="">All Categories</option>' +
-    cats.map(c => `<option value="${c}">${c}</option>`).join('');
-}
-
-function filterTable() {
-  const search   = document.getElementById('search-input').value.toLowerCase();
-  const catVal   = document.getElementById('cat-filter').value;
-  const typeVal  = document.getElementById('type-filter').value;
-
-  const filtered = allTransactions.filter(t => {
-    const desc = (t.description || '').toLowerCase();
-    if (search && !desc.includes(search)) return false;
-    if (catVal  && t.category !== catVal) return false;
-    if (typeVal === 'debit'  && !t.debit)  return false;
-    if (typeVal === 'credit' && !t.credit) return false;
+// ── Filter ────────────────────────────────────────────────────────────────
+function filter() {
+  const s = document.getElementById('search').value.toLowerCase();
+  const c = document.getElementById('cfilter').value;
+  const t = document.getElementById('tfilter').value;
+  renderTable(all.filter(x => {
+    if (s && !(x.description || '').toLowerCase().includes(s)) return false;
+    if (c && x.category !== c) return false;
+    if (t === 'debit'  && !x.debit)  return false;
+    if (t === 'credit' && !x.credit) return false;
     return true;
-  });
-
-  renderTable(filtered);
+  }));
 }
 
 // ── Export ────────────────────────────────────────────────────────────────
-function exportData(format) {
-  if (!currentSessionId) return alert('No data to export yet.');
-  window.open(`${API}/export/${currentSessionId}/${format}`, '_blank');
+function exp(fmt) {
+  if (!sid) { alert('No data yet.'); return; }
+  window.open('/api/export/' + sid + '/' + fmt, '_blank');
 }
 </script>
 </body>

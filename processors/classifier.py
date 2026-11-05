@@ -1,12 +1,9 @@
 """
-Simple Rule-Based Transaction Classifier (No ML/LLM dependencies).
-
-Categorizes transactions using direct keyword matching with word-boundary
-protection for short terms (e.g. 'atm', 'emi', 'lic').
+Rule-Based Transaction Classifier.
+Categorizes transactions using straightforward keyword matching.
 """
 import re
 
-# Category -> List of matching keywords
 CATEGORIES = {
     "UPI Transfer":               ["upi", "bhim", "gpay", "phonepe", "paytm"],
     "NEFT / RTGS Transfer":       ["neft", "rtgs", "imps", "fund transfer"],
@@ -33,35 +30,27 @@ CATEGORIES = {
 }
 
 
-def _match(text: str, kw: str) -> bool:
-    """Check if keyword matches in text (uses word boundary for short abbreviations)."""
-    if len(kw) <= 3:
-        return bool(re.search(r'\b' + re.escape(kw) + r'\b', text))
-    return kw in text
-
-
-def classify_transaction(description: str) -> dict:
-    """
-    Classify a single transaction by matching keywords against description.
-    Returns: { 'category': str, 'confidence': float, 'method': 'rule' }
-    """
+def classify_transaction(description: str) -> str:
+    """Classify a single transaction description into a category."""
     if not description:
-        return {"category": "Other", "confidence": 0.0, "method": "rule"}
+        return "Other"
 
     text = str(description).lower().strip()
 
     for category, keywords in CATEGORIES.items():
-        if any(_match(text, kw) for kw in keywords):
-            return {"category": category, "confidence": 0.95, "method": "rule"}
+        for kw in keywords:
+            # Word boundary check for short abbreviations (<= 3 chars)
+            if len(kw) <= 3:
+                if re.search(r'\b' + re.escape(kw) + r'\b', text):
+                    return category
+            elif kw in text:
+                return category
 
-    return {"category": "Other", "confidence": 0.50, "method": "rule"}
+    return "Other"
 
 
 def classify_all(transactions: list) -> list:
     """Classify a list of transactions in-place."""
     for t in transactions:
-        res = classify_transaction(t.get("description", ""))
-        t["category"] = res["category"]
-        t["confidence"] = res["confidence"]
-        t["classification_method"] = res["method"]
+        t["category"] = classify_transaction(t.get("description", ""))
     return transactions

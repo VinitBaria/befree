@@ -11,7 +11,7 @@ from openpyxl.utils import get_column_letter
 
 COLUMNS = [
     'Date', 'Description', 'Debit', 'Credit', 'Balance',
-    'Category', 'Confidence', 'Classification Method', 'Reference'
+    'Category', 'Reference'
 ]
 
 CATEGORY_COLORS = {
@@ -50,8 +50,6 @@ def _row_from_txn(txn: dict) -> list:
         txn.get('credit', ''),
         txn.get('balance', ''),
         txn.get('category', 'Other'),
-        txn.get('confidence', ''),
-        txn.get('classification_method', ''),
         txn.get('reference', ''),
     ]
 
@@ -125,7 +123,7 @@ def export_to_excel(account_details: dict, transactions: list) -> bytes:
                     cell.number_format = '#,##0.00'
 
     # Auto-fit columns
-    col_widths = [12, 50, 14, 14, 14, 25, 12, 22, 20]
+    col_widths = [12, 50, 14, 14, 14, 25, 20]
     for i, width in enumerate(col_widths, start=1):
         ws_txn.column_dimensions[get_column_letter(i)].width = width
 
